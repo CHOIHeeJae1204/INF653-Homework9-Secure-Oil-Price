@@ -7,14 +7,80 @@ This assignment focuses on the practical application of Express.js middleware to
 ### 1. Project Specifications
 #### Backend Requirements
 You are required to build an Express.js server that implements the following middleware layers in the correct order:
-- IP Filtering: Create a custom middleware that only allows requests from `127.0.0.1` or `::1`. Block all other IPs with a `403 Forbidden` status.
-- CORS: Use the `cors` package to restrict access only to your current local development origin.
-- Rate Limiting: Implement a limit of 10 requests per 1 minute. Use `express-rate-limit`.
-- Bearer Token Authentication: Protect the API data endpoint. Require a header: `Authorization: Bearer <your_secret_token>`.
+- **IP Filtering**: Create a custom middleware that only allows requests from `127.0.0.1` or `::1`. Block all other IPs with a `403 Forbidden` status.
+- **CORS**: Use the `cors` package to restrict access only to your current local development origin.
+- **Rate Limiting**: Implement a limit of 10 requests per 1 minute. Use `express-rate-limit`.
+- **Bearer Token Authentication**: Protect the API data endpoint. Require a header: `Authorization: Bearer <your_secret_token>`.
 
-#### The Data (Static Oil Price Object)
-Your API must return the following JSON object when called successfully:
+## Setup
+Install dependencies and run the server:
+
+```bash
+npm install
+npm start
 ```
+
+Server URL:
+
+```text
+http://localhost:3000
+```
+
+### Bearer Token
+```text
+inf653-secure-token-2026
+```
+
+Use header:
+```text
+Authorization: Bearer inf653-secure-token-2026
+```
+
+### Basic Auth for `/dashboard`
+- Username: `admin`
+- Password: `password123`
+
+## Endpoints
+
+### GET `/api/oil-prices` (Bearer Token)
+Returns the static oil price JSON object.
+
+### GET `/dashboard` (Basic Auth)
+Returns an HTML dashboard table of oil prices.
+
+### GET `/logout` (No auth)
+Shows a "Logged Out Successfully" page with a link to log in again.
+
+## Quick Test Commands
+
+### Valid API request
+```bash
+curl -i http://localhost:3000/api/oil-prices \
+  -H "Authorization: Bearer inf653-secure-token-2026"
+```
+Expected: `200 OK` + JSON data.
+
+### Missing token
+```bash
+curl -i http://localhost:3000/api/oil-prices
+```
+Expected: `401 Unauthorized`.
+
+### Wrong token
+```bash
+curl -i http://localhost:3000/api/oil-prices \
+  -H "Authorization: Bearer wrongtoken"
+```
+Expected: `401 Unauthorized`.
+
+### Dashboard test
+```bash
+curl -i http://localhost:3000/dashboard -u admin:password123
+```
+Expected: `200 OK` + HTML page.
+
+## Static Data Returned by the API
+```json
 {
   "market": "Global Energy Exchange",
   "last_updated": "2026-03-15T12:55:00Z",
@@ -41,25 +107,3 @@ Your API must return the following JSON object when called successfully:
   ]
 }
 ```
-
-### 2. Endpoint Definitions
-Method	  Endpoint	          Protection	    Description
-GET      `/api/oil-prices`    Bearer Token    Returns the JSON oil price object.
-GET      `/dashboard`         Basic Auth      Serves a simple HTML page (UI) showing the prices.
-GET      `/logout`            None            Clears the Basic Auth session and redirects to a "Logged Out" message.
-
-### 3. Submission Guidelines
-1. Repository: Create a public GitHub repository named `express-middleware-assignment`.
-2. Code Structure: * `app.js` (or `server.js`): Main application logic.
-   - `package.json`: Listing all dependencies.
-   - `README.md`: Instructions to run the project.
-3. README Requirements:
-   - State the Bearer Token value needed for testing.
-   - State the Username/Password for the `/dashboard` Basic Auth.
-4. Submission: Paste the URL of your GitHub repository into the Canvas assignment text box.
-
-### 4. Evaluation Criteria (Rubric)
-- Middleware Order (25%): Are layers (IP, CORS, Rate Limit, Auth) applied in a logical sequence?
-- Security (25%): Does the Bearer Token and Basic Auth correctly block unauthorized access?
-- Traffic Control (25%): Is the Rate Limiter functional and set to the correct parameters?
-- Code Quality (25%): Is the code clean, commented, and does the `/logout` logic work as intended?
